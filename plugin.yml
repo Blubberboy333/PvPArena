@@ -4,5 +4,25 @@ api: [2.0.0]
 main: Blubberboy333\PvPArena\Main
 commands:
     fight:
-        usage: /fight <arena | list>
-        description: Main PvPArena command
+        usage: /fight <arena>
+        description: Adds a player to an arena
+        permission: pvp.cmd.main
+    arena:
+        usage: /arena <new |delete> <name>
+        description: Adds or deletes an arena
+        permission: pvp.cmd.arena
+permissions:
+    pvp:
+        default: false
+        description: Allows the player to use all of the PvPArena functions
+        children:
+            pvp.cmd:
+                default: false
+                description: Allows the player to use all of the PvPArena commands
+                children:
+                    pvp.cmd.fight:
+                        default true
+                        description: Allows the player to use the fight command
+                    pvp.cmd.arena:
+                        default: op
+                        description: Allows the player to add a new arena
