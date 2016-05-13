@@ -1,0 +1,8 @@
+name: PvPArena
+version: 1.0.0
+api: [2.0.0]
+main: Blubberboy333\PvPArena\Main
+commands:
+    fight:
+        usage: /fight <arena | list>
+        description: Main PvPArena command
