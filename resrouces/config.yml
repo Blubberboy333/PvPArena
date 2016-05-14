@@ -1,3 +1,12 @@
-# What world is your PvPArena lobby in?
-World: PvP
+# Message to broadcast when a player wins a fight
+# Use {NAME} for the winner's name and {ARENA} for the arena name
+Message: "{NAME} won a match in arena {ARENA}"
 
+# Default items to put in new arena files
+Items:
+    - "299"
+    - "300"
+    - "268"
+
+# You can just ignore this, but DON'T delete it
+Arenas: []
