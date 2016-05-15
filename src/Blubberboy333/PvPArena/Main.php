@@ -113,6 +113,26 @@ class Main extends PluginBase implements Listener{
                             $sender->sendMessage(TextFormat::RED."That command can only be used in-game!");
                             return true;
                         }
+                    }elseif($args[0] == "leave"){
+                        if($sender instanceof Player){
+                            if(file_exists($this->getDataFolder()."Players/".$sender->getName().".yml")){
+                                if($sender->getLevel()->getName() == $this->getConfig()->get("World")){
+                                    $sender->teleport(new Vector3($this->getConfig()->get("X"), $this->getConfig()->get("Y"), $this->getConfig()->get("Z")));
+                                }else{
+                                    $sender->teleport(new Position($this->getConfig()->get("X"), $this->getConfig()->get("Y"), $this->getConfig()->get("Z"), $this->getConfig()->get("World")));
+                                }
+                                $playerFile = new Config($this->getDataFolder()."Players/".$sender->getName().".yml", Config::YAML);
+                                $arena = $playerFile->get("Match");
+                                $arenaFile = new Config($this->getDataFolder()."Arenas/".$arena.".yml", Config::YAML);
+                                if(count($arenaFile->get("ActiveFighters")) == 2){
+                                    
+                                }
+                                $sender->sendMessage("You have left the match.");
+                            }else{
+                                $sender->sendMessage(TextFormat::YELLOW."You aren't in a match!");
+                                return true;
+                            }
+                        }
                     }else{
                         $sender->sendMessage(TextFormat::RED."Unknown subcommand: ".$args[0]);
                         return true;
@@ -209,30 +229,48 @@ class Main extends PluginBase implements Listener{
     }
     
     public function onEntityMotionEvent(EntityMotionEvent $event){
-        
+        $player = $event->getEntity();
+        if($player instanceof Player){
+            if(in_array($player->getName(), $this->fighters())){
+                if(file_exists($this->getDataFolder()."Players/".$player->getName().".yml")){
+                    $playerFile = new Config($this->getDataFolder()."Players/".$player->getName().".yml", Config::YAML);
+                    $arena = $playerFile->get("Match");
+                    $arenaFile = new Config($this->getDataFolder()."Arenas/".$arena.".yml", Config::YAML);
+                    if($arenaFile->get("Active") !== true){
+                        $event->setCancelled();
+                    }
+                }
+            }
+        }
     }
     
     public function onPlayerDeathEvent(PlayerDeathEvent $event){
-        
-    }
-    
-    public function onPlayerQuitEvent(PlayerQuitEvent $event){
-        
-    }
-    
-    public function joinMatch($player, $match){
-        
+        $player = $event->getPlayer();
+        if(in_array($player->getName(), $this->fighters)){
+            $playerFile = new Config($this->getDataFolder()."Players/".$player->getName().".yml", Config::YAML);
+            $arena = $playerFile->get("Match");
+            $arenaFile = new Config($this->getDataFolder()."Arenas/".$arena.".yml", Config::YAML);
+            foreach($arenaFile->get("ActiveFighters") as $i){
+                if($i !== $player->getName()){
+                    $this->winMatch($i, $arena);
+                }
+            }
+        }
     }
     
     public function winMatch($player, $match){
-        
-    }
-    
-    public function quitMatch($player, $match){
-        
-    }
-    
-    public function onEntityLevelChangeEvent(EntityLevelChangeEvent $event){
-        
+        $winner = $this->getServer()->getPlayer($player);
+        $message = $this->getConfig()->get("Message");
+        $replace = str_replace(array("{NAME}", "{ARENA}"), array($winner->getName(), $match), $message);
+        $this->getServer()->broadcastMessage($replace);
+        $x = $this->getConfig()->get("X");
+        $y = $this->getConfig()->get("Y");
+        $z = $this->getConfig()->get("Z");
+        $world = $this->getConfig()->get("World");
+        if($winner->getLevel()->getName() == $world){
+            $winner->teleport(new Vector3($x, $y, $z));
+        }else{
+            $winner->teleport(new Position($x, $y, $z, $world));
+        }
     }
 }
