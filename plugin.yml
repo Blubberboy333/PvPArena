@@ -21,7 +21,7 @@ permissions:
                 description: Allows the player to use all of the PvPArena commands
                 children:
                     pvp.cmd.fight:
-                        default true
+                        default: true
                         description: Allows the player to use the fight command
                     pvp.cmd.arena:
                         default: op
